@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentsCourses;
+import raisetech.StudentManagement.domain.StudentDetail;
 import raisetech.StudentManagement.repository.StudentRepository;
 
 @Service
@@ -42,5 +43,9 @@ public class StudentService {
         .collect(Collectors.toUnmodifiableList()); //左のtoUnmodifiableListの部分は別にtoListでもよい
     */
     // ここまでが課題２４の解答（その２）
+  }
+
+  public void insertStudent(StudentDetail studentDetail) {
+    repository.insertStudent(studentDetail.getStudent());
   }
 }
