@@ -13,4 +13,39 @@
     SELECT * FROM students WHERE id = #{id}
   </select>
 
+  <!-- 受講生のコース情報の全件検索　-->
+  <select id="searchStudentCourseList" resultType="raisetech.StudentManagement.data.StudentCourse">
+    SELECT * FROM students_courses
+  </select>
+
+  <!-- 受講生IDに紐づく受講生コース情報の検索　-->
+  <select id="searchStudentCourse" resultType="raisetech.StudentManagement.data.StudentCourse">
+    SELECT * FROM students_courses WHERE student_id = #{studentId}
+  </select>
+
+  <!-- 受講生の新規登録。IDに関しては自動採番を行う。　-->
+  <insert id="registerStudent">
+    INSERT INTO students(name, kana_name, nickname, email, area, age, sex, remark, is_deleted)
+    VALUES(#{name}, #{kanaName}, #{nickname}, #{email}, #{area}, #{age}, #{sex}, #{remark},
+    false)
+  </insert>
+
+  <!-- 受講生コース情報の新規登録。IDに関しては自動採番を行う。　-->
+  <insert id="registerStudentCourse">
+    INSERT INTO students_courses(student_id, course_name, course_start_at, course_end_at)
+    VALUES(#{studentId}, #{courseName}, #{courseStartAt}, #{courseEndAt})
+  </insert>
+
+  <!-- 受講生を更新　-->
+  <update id="updateStudent">
+    UPDATE students SET name = #{name}, kana_name = #{kanaName}, nickname = #{nickname},
+    email = #{email}, area = #{area}, age = #{age}, sex = #{sex}, remark = #{remark},
+    is_deleted = #{isDeleted} WHERE id = #{id}
+  </update>
+
+  <!-- 受講生コース情報のコース名を更新　-->
+  <update id="updateStudentCourse">
+    UPDATE students_courses SET course_name = #{courseName} WHERE id = #{id}
+  </update>
+
 </mapper>
