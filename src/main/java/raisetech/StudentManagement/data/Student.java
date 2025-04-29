@@ -11,7 +11,6 @@ import lombok.Setter;
 @Setter
 public class Student {
 
-  @NotBlank
   @Pattern(regexp = "^\\d+$")
   private String id;
 
