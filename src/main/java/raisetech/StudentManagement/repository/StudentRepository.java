@@ -2,7 +2,6 @@ package raisetech.StudentManagement.repository;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
 
@@ -47,7 +46,7 @@ public interface StudentRepository {
    *
    * @param student 受講生
    */
-  @Options(useGeneratedKeys = true, keyProperty = "id")
+  //@Options(useGeneratedKeys = true, keyProperty = "id")
   //@OptionsはINSERTするときにだけ付ける！！
   void registerStudent(Student student);
 
@@ -56,9 +55,10 @@ public interface StudentRepository {
    *
    * @param studentCourse 受講生コース情報
    */
-  @Options(useGeneratedKeys = true, keyProperty = "id")
+  //@Options(useGeneratedKeys = true, keyProperty = "id")
   //@OptionsはINSERTするときにだけ付ける！！
   void registerStudentCourse(StudentCourse studentCourse);
+
 
   /**
    * 受講生を更新します。

@@ -24,14 +24,16 @@
   </select>
 
   <!-- 受講生の新規登録。IDに関しては自動採番を行う。　-->
-  <insert id="registerStudent">
+  <!-- @OptionsはINSERTするときにだけ付ける！！  -->
+  <insert id="registerStudent" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO students(name, kana_name, nickname, email, area, age, sex, remark, is_deleted)
     VALUES(#{name}, #{kanaName}, #{nickname}, #{email}, #{area}, #{age}, #{sex}, #{remark},
     false)
   </insert>
 
   <!-- 受講生コース情報の新規登録。IDに関しては自動採番を行う。　-->
-  <insert id="registerStudentCourse">
+  <!-- @OptionsはINSERTするときにだけ付ける！！  -->
+  <insert id="registerStudentCourse" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO students_courses(student_id, course_name, course_start_at, course_end_at)
     VALUES(#{studentId}, #{courseName}, #{courseStartAt}, #{courseEndAt})
   </insert>
