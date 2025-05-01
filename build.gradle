@@ -30,6 +30,10 @@ dependencies {
 
     // ↓ Thymeleaf
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'     //:3.4.3'
+
+    //↓ Validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
     //　↓　便利機能　↓
     implementation 'org.apache.commons:commons-lang3:3.17.0'
 
