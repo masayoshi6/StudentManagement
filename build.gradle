@@ -34,6 +34,9 @@ dependencies {
     //↓ Validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    //OpenAPI Generator
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
+
     //　↓　便利機能　↓
     implementation 'org.apache.commons:commons-lang3:3.17.0'
 
