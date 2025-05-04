@@ -8,7 +8,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -162,10 +164,17 @@ public class StudentController {
    */
   @Operation(summary = "受講生更新", description = "受講生の情報を更新します。")
   @PutMapping("/updateStudent")
-  public ResponseEntity<String> updateStudent(@RequestBody @Valid StudentDetail studentDetail) {
+  public ResponseEntity<Map<String, String>> updateStudent(
+      @RequestBody @Valid StudentDetail studentDetail) {
     service.updateStudent(studentDetail);
-    return ResponseEntity.ok("更新処理が成功しました。");
+    Map<String, String> response = new HashMap<>();
+    response.put("message", "更新処理が成功しました。");
+
+    return ResponseEntity.ok(response);
   }
+
+
+
 
   /*@ExceptionHandler(TestException.class)
   public ResponseEntity<String> handleTestException(TestException ex) {

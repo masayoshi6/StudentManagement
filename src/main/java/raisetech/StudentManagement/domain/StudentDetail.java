@@ -17,10 +17,10 @@ import raisetech.StudentManagement.data.StudentCourse;
 @AllArgsConstructor
 public class StudentDetail {
 
-  @Schema(description = "受講生", example = "田中太郎")
+  //@Schema(description = "受講生", example = "田中太郎")
   @Valid
   private Student student;
-  
+
   //@Schema(description = "一人の受講生が受講しているコース一覧", example = "[Javaコース, AWSコース]")
   @Valid
   private List<StudentCourse> studentCourseList;
