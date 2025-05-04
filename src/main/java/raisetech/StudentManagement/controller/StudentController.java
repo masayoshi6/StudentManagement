@@ -1,10 +1,16 @@
 package raisetech.StudentManagement.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -51,6 +57,7 @@ public class StudentController {
    * @return 例外を発生させる練習用のメソッドのため、特にございません。
    * @throws PracticeException
    */
+  @Operation(summary = "例外処理練習用API", description = "発生した例外を受け取り、例外処理を行います。")
   @GetMapping("/practiceException")
   public StudentDetail getPracticeException() throws PracticeException {
     throw new PracticeException("エラー発生");
@@ -63,6 +70,46 @@ public class StudentController {
    * @param id 受講生ID
    * @return 受講生
    */
+  @Operation(
+      summary = "受講生検索",
+      description = "受講生IDを指定して受講生の情報を取得します。",
+      responses = {
+          @ApiResponse(responseCode = "200", description = "正常に受講生情報を取得しました。"),
+          @ApiResponse(
+              responseCode = "400",
+              description = "不正なID形式です。",
+              content = @Content(
+                  mediaType = "application/json",
+                  examples = @ExampleObject(
+                      name = "BadRequestExample",
+                      summary = "ID形式エラー",
+                      description = "IDが数値でない場合のエラー例",
+                      value = """
+                          {
+                            "error": "Bad Request",
+                            "message": "IDの形式が不正です。数値のIDを指定してください。",
+                            "code": 400
+                          }"""))),
+          @ApiResponse(
+              responseCode = "404",
+              description = "指定されたIDの受講生が見つかりません。",
+              content = @Content(
+                  mediaType = "application/json",
+                  examples = @ExampleObject(
+                      name = "NotFoundExample",
+                      summary = "受講生未登録",
+                      description = "指定したIDの受講生が存在しない場合",
+                      value = """
+                          {
+                            "error": "Not Found",
+                            "message": "受講生が見つかりませんでした。ID: 1234",
+                            "code": 404
+                          }""")))})
+  @Parameter(
+      name = "id",
+      description = "受講生ID（数値のみ）",
+      required = true,
+      example = "123")
   @GetMapping("/student/{id}")
   public StudentDetail getStudent(@PathVariable @NotBlank @Pattern(regexp = "^\\d+$") String id) {
     //throw new TestException(id + "番の人に対してエラーが発生しました");
@@ -71,9 +118,9 @@ public class StudentController {
       throw new PracticeException("受講生が見つかりませんでした。ID: " + id);
     }
     return student;
-
     //return service.searchStudent(id);
   }
+
 
   /**
    * 受講生詳細の登録を行います。
@@ -81,7 +128,27 @@ public class StudentController {
    * @param studentDetail 受講生詳細
    * @return 実行結果
    */
-  @Operation(summary = "受講生登録", description = "受講生を登録します。")
+  @Operation(
+      summary = "受講生登録",
+      description = "新しい受講生を登録します。",
+      tags = {"受講生管理"},
+      responses = {
+          @ApiResponse(responseCode = "200", description = "正常に登録されました。"),
+          @ApiResponse(responseCode = "400",
+              description = "入力データが不正です。",
+              content = @Content(
+                  mediaType = "application/json",
+                  examples = @ExampleObject(
+                      name = "BadRequestExample",
+                      summary = "ID形式エラー",
+                      description = "IDが数値でない場合のエラー例",
+                      value = """
+                          {
+                            "error": "Bad Request",
+                            "message": "IDの形式が不正です。数値のIDを指定してください。",
+                            "code": 400
+                          }"""))
+          )})
   @PostMapping("/registerStudent")
   public ResponseEntity<StudentDetail> registerStudent(
       @RequestBody @Valid StudentDetail studentDetail) {
@@ -95,11 +162,19 @@ public class StudentController {
    * @param studentDetail 受講生詳細
    * @return 実行結果
    */
+  @Operation(summary = "受講生更新", description = "受講生の情報を更新します。")
   @PutMapping("/updateStudent")
-  public ResponseEntity<String> updateStudent(@RequestBody @Valid StudentDetail studentDetail) {
+  public ResponseEntity<Map<String, String>> updateStudent(
+      @RequestBody @Valid StudentDetail studentDetail) {
     service.updateStudent(studentDetail);
-    return ResponseEntity.ok("更新処理が成功しました。");
+    Map<String, String> response = new HashMap<>();
+    response.put("message", "更新処理が成功しました。");
+
+    return ResponseEntity.ok(response);
   }
+
+
+
 
   /*@ExceptionHandler(TestException.class)
   public ResponseEntity<String> handleTestException(TestException ex) {
