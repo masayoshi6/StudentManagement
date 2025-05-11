@@ -4,8 +4,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import raisetech.StudentManagement.controller.converter.StudentConverter;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
+import raisetech.StudentManagement.domain.StudentDetail;
 import raisetech.StudentManagement.repository.StudentRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,7 +62,7 @@ class StudentServiceTest {
     //ここでDBをもとに戻したりする
   }
 
-  /*@Test
+  @Test
   void 受講生詳細検索＿リポジトリの処理が適切に呼び出せており受講生詳細のオブジェクトが正確に返されていること() {
     Student student = new Student("777", "田中太郎", "タナカタロウ", "タロ",
         "tokiwa@example.com", "名古屋", 18, "男性", "とても頑張ります", false);
@@ -119,5 +122,5 @@ class StudentServiceTest {
 
     verify(repository, times(1)).updateStudent(student);
     verify(repository, times(1)).updateStudentCourse(studentCourse);
-  }*/
+  }
 }
