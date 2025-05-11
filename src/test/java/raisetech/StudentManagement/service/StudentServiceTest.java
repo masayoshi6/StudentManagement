@@ -4,8 +4,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import raisetech.StudentManagement.controller.converter.StudentConverter;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
+import raisetech.StudentManagement.domain.StudentDetail;
 import raisetech.StudentManagement.repository.StudentRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,5 +62,65 @@ class StudentServiceTest {
     //ここでDBをもとに戻したりする
   }
 
+  @Test
+  void 受講生詳細検索＿リポジトリの処理が適切に呼び出せており受講生詳細のオブジェクトが正確に返されていること() {
+    Student student = new Student("777", "田中太郎", "タナカタロウ", "タロ",
+        "tokiwa@example.com", "名古屋", 18, "男性", "とても頑張ります", false);
+    List<StudentCourse> studentCourses = new ArrayList<>();
 
+    StudentCourse studentCourse = new StudentCourse("99", "777", "Javaコース",
+        LocalDateTime.of(2025, 4, 1, 00, 00, 00),
+        LocalDateTime.of(2026, 3, 31, 00, 00, 00));
+
+    studentCourses.add(studentCourse);
+
+    when(repository.searchStudent("777")).thenReturn(student);
+    when(repository.searchStudentCourse(student.getId())).thenReturn(studentCourses);
+
+    StudentDetail expected = new StudentDetail(student, studentCourses);
+    StudentDetail actual = sut.searchStudent("777");
+
+    verify(repository, times(1)).searchStudent("777");
+    verify(repository, times(1)).searchStudentCourse(student.getId());
+    Assertions.assertEquals(expected, actual);
+  }
+
+  @Test
+  void 受講生登録＿リポジトリと受講生コース情報を登録する際の初期情報を設定する処理及び登録情報をまとめた受講生詳細のオブジェクトが正確に返されていること() {
+    Student student = new Student("777", "田中太郎", "タナカタロウ", "タロ",
+        "tokiwa@example.com", "名古屋", 18, "男性", "とても頑張ります", false);
+    List<StudentCourse> studentCourses = new ArrayList<>();
+
+    StudentCourse studentCourse = new StudentCourse("99", "777", "Javaコース",
+        LocalDateTime.of(2025, 4, 1, 00, 00, 00),
+        LocalDateTime.of(2026, 3, 31, 00, 00, 00));
+
+    studentCourses.add(studentCourse);
+
+    StudentDetail expected = new StudentDetail(student, studentCourses);
+    StudentDetail actual = sut.registerStudent(new StudentDetail(student, studentCourses));
+
+    verify(repository, times(1)).registerStudent(student);
+    verify(repository, times(1)).registerStudentCourse(studentCourse);
+    Assertions.assertEquals(expected, actual);
+  }
+
+  @Test
+  void 受講生情報の更新＿リポジトリの処理が適切に呼び出せていること() {
+    Student student = new Student("777", "田中太郎", "タナカタロウ", "タロ",
+        "tokiwa@example.com", "名古屋", 18, "男性", "とても頑張ります", false);
+    List<StudentCourse> studentCourses = new ArrayList<>();
+
+    StudentCourse studentCourse = new StudentCourse("99", "777", "Javaコース",
+        LocalDateTime.of(2025, 4, 1, 00, 00, 00),
+        LocalDateTime.of(2026, 3, 31, 00, 00, 00));
+
+    studentCourses.add(studentCourse);
+    StudentDetail studentDetail = new StudentDetail(student, studentCourses);
+
+    sut.updateStudent(studentDetail);
+
+    verify(repository, times(1)).updateStudent(student);
+    verify(repository, times(1)).updateStudentCourse(studentCourse);
+  }
 }
