@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,6 +16,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class Student {
 
   @Schema(description = "受講生ID", example = "1001")
@@ -56,7 +57,7 @@ public class Student {
   @Schema(description = "キャンセルフラグ", example = "false")
   private boolean isDeleted;
 
-  @Override
+  /*@Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -75,6 +76,6 @@ public class Student {
   @Override
   public int hashCode() {
     return Objects.hash(id, name, kanaName, nickname, email, area, age, sex, remark, isDeleted);
-  }
+  }*/
 
 }

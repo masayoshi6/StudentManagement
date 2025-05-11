@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +15,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class StudentCourse {
 
   //@NotBlank
@@ -37,7 +38,7 @@ public class StudentCourse {
   @Schema(description = "サポート終了日", example = "2026.03.31")
   private LocalDateTime courseEndAt;
 
-  @Override
+  /*@Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -56,5 +57,5 @@ public class StudentCourse {
   @Override
   public int hashCode() {
     return Objects.hash(id, studentId, courseName, courseStartAt, courseEndAt);
-  }
+  }*/
 }
