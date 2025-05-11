@@ -11,6 +11,8 @@ import lombok.Setter;
 @Schema(description = "受講生")
 @Getter
 @Setter
+//@NoArgsConstructor
+//@AllArgsConstructor
 public class Student {
 
   @Schema(description = "受講生ID", example = "1001")
@@ -51,4 +53,25 @@ public class Student {
   @Schema(description = "キャンセルフラグ", example = "false")
   private boolean isDeleted;
 
+
+  /*@Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Student student = (Student) o;
+    return Objects.equals(id, student.id) && Objects.equals(name, student.name)
+        && Objects.equals(kanaName, student.kanaName) && Objects.equals(nickname, student.nickname)
+        && Objects.equals(email, student.email) && Objects.equals(area, student.area)
+        && Objects.equals(age, student.age) && Objects.equals(sex, student.sex)
+        && Objects.equals(remark, student.remark) && Objects.equals(isDeleted, student.isDeleted);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, name, kanaName, nickname, email, area, age, sex, remark, isDeleted);
+  }*/
 }
