@@ -33,7 +33,6 @@ public class StudentController {
 
   private StudentService service;
 
-
   @Autowired
   public StudentController(StudentService service) {
     this.service = service;
@@ -62,7 +61,6 @@ public class StudentController {
   public StudentDetail getPracticeException() throws PracticeException {
     throw new PracticeException("エラー発生");
   }
-
 
   /**
    * 受講生詳細の検索です。 IDに紐づく任意の受講生の情報を取得します。
@@ -121,7 +119,6 @@ public class StudentController {
     //return service.searchStudent(id);
   }
 
-
   /**
    * 受講生詳細の登録を行います。
    *
@@ -173,12 +170,8 @@ public class StudentController {
     return ResponseEntity.ok(response);
   }
 
-
-
-
   /*@ExceptionHandler(TestException.class)
   public ResponseEntity<String> handleTestException(TestException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
   }*/
-
 }

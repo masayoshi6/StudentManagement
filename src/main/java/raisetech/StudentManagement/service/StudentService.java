@@ -20,7 +20,6 @@ public class StudentService {
   private StudentRepository repository;
   private StudentConverter converter;
 
-
   @Autowired
   public StudentService(StudentRepository repository, StudentConverter converter) {
     this.repository = repository;
@@ -36,15 +35,6 @@ public class StudentService {
     List<Student> studentList = repository.search();
     List<StudentCourse> studentCourseList = repository.searchStudentCourseList();
     return converter.convertStudentDetails(studentList, studentCourseList);
-
-    // ↓課題２４の解答
-    /*List<Student> students = repository.search();
-
-    return students.stream()
-        .filter(v -> v.getAge() >= 30 && v.getAge() < 40)
-        .collect(Collectors.toList()); //左のtoListの部分は別にtoUnmodifiableListでもよい
-    */
-    // ↑ ここまでが課題２４の解答（その１）
   }
 
   /**
@@ -71,6 +61,7 @@ public class StudentService {
 
     repository.registerStudent(student);
     //   todo　コース情報登録も行う
+    //   todo　コース情報登録も行う2
     studentDetail.getStudentCourseList().forEach(studentCourse -> {
       initStudentsCourse(studentCourse, student.getId());
       repository.registerStudentCourse(studentCourse);
