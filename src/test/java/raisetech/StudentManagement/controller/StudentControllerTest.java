@@ -260,7 +260,7 @@ class StudentControllerTest {
   }
 
   @Test
-  void 受講生詳細の受講生コーヅ情報でコースIDに数字以外を用いた時に入力チェックに掛かること() {
+  void 受講生詳細の受講生コース情報でコースIDに数字以外を用いた時に入力チェックに掛かること() {
     StudentCourse studentCourse = new StudentCourse("テストです。", "1", "Javaコース",
         LocalDateTime.of(2025, 4, 1, 00, 00),
         LocalDateTime.of(2026, 3, 31, 00, 00));
