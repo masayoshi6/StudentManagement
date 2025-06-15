@@ -20,7 +20,7 @@ public class StudentCourse {
 
   //@NotBlank
   @Schema(description = "コースID", example = "5")
-  @Pattern(regexp = "^\\d+$")
+  @Pattern(regexp = "^\\d+$", message = "数字のみ入力するようにしてください。")
   private String id;
 
   //@NotBlank
