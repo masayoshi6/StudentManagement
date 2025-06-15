@@ -61,7 +61,6 @@ public class StudentService {
 
     repository.registerStudent(student);
     //   todo　コース情報登録も行う
-    //   todo　コース情報登録も行う2
     studentDetail.getStudentCourseList().forEach(studentCourse -> {
       initStudentsCourse(studentCourse, student.getId());
       repository.registerStudentCourse(studentCourse);
