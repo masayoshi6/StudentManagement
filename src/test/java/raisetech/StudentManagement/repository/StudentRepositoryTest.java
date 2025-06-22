@@ -126,8 +126,12 @@ class StudentRepositoryTest {
 
     sut.registerStudentCourse(studentCourse);
 
-    List<StudentCourse> sactual = sut.searchStudentCourseList();
-    assertThat(sactual.size()).isEqualTo(11);
+    List<StudentCourse> actual = sut.searchStudentCourseList();
+    assertThat(actual.size()).isEqualTo(11);
   }
 
+  @Test
+  void 受講生更新ができること() {
+
+  }
 }
