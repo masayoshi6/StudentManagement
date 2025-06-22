@@ -116,8 +116,18 @@ class StudentRepositoryTest {
     assertThat(actual.size()).isEqualTo(3);
   }
 
-  /*@Test
-  void 受講生のコース情報が登録できること(){
+  @Test
+  void 受講生のコース情報が登録できること() {
+    StudentCourse studentCourse = new StudentCourse();
+    studentCourse.setStudentId("1");
+    studentCourse.setCourseName("数学コース");
+    studentCourse.setCourseStartAt(LocalDateTime.of(2023, 4, 1, 9, 0, 0));
+    studentCourse.setCourseEndAt(LocalDateTime.of(2023, 7, 1, 15, 0, 0));
 
-  }*/
+    sut.registerStudentCourse(studentCourse);
+
+    List<StudentCourse> sactual = sut.searchStudentCourseList();
+    assertThat(sactual.size()).isEqualTo(11);
+  }
+
 }
