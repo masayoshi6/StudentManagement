@@ -132,6 +132,24 @@ class StudentRepositoryTest {
 
   @Test
   void 受講生更新ができること() {
+    Student student = new Student();
+    student.setId("1");
+    student.setName("山田太郎");
+    student.setKanaName("ヤマダタロウ");
+    student.setNickname("タロ");
+    student.setEmail("taroyama@example.com");
+    student.setArea("名古屋");
+    student.setAge(26);
+    student.setSex("男性");
+    student.setRemark("");
+    student.setDeleted(false);
 
+    sut.updateStudent(student);
+
+    Student actual = sut.searchStudent("1");
+    assertEquals(student.getEmail(), actual.getEmail());
+    assertEquals(student.getArea(), actual.getArea());
+    assertEquals(student.getAge(), actual.getAge());
   }
+
 }
