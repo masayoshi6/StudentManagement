@@ -84,13 +84,6 @@ class StudentRepositoryTest {
     assertThat(actual.size()).isEqualTo(3);
   }
 
-  private StudentCourse getStudentCourse(String number, String courseName) {
-    StudentCourse studentCourse1 = new StudentCourse();
-    studentCourse1.setId(number);
-    studentCourse1.setStudentId("1");
-    studentCourse1.setCourseName(courseName);
-    return studentCourse1;
-  }
 
   @Test
   void 受講生のコース情報が登録できること() {
@@ -159,5 +152,13 @@ class StudentRepositoryTest {
     student.setRemark("");
     student.setDeleted(false);
     return student;
+  }
+
+  private StudentCourse getStudentCourse(String number, String courseName) {
+    StudentCourse studentCourse1 = new StudentCourse();
+    studentCourse1.setId(number);
+    studentCourse1.setStudentId("1");
+    studentCourse1.setCourseName(courseName);
+    return studentCourse1;
   }
 }
