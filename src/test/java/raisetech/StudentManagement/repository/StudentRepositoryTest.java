@@ -2,12 +2,14 @@ package raisetech.StudentManagement.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
 
@@ -160,5 +162,112 @@ class StudentRepositoryTest {
     studentCourse1.setStudentId("1");
     studentCourse1.setCourseName(courseName);
     return studentCourse1;
+  }
+
+  //以下は、「異常系」のテストです！
+  @Test
+  void 存在しない受講生IDを用いて検索をかけたときnullが返ってくること() {
+    String id = "9999"; // 存在しないIDと仮定
+
+    Student result = sut.searchStudent(id);
+
+    assertThat(result).isNull(); // null が返ることを確認
+  }
+
+  @Test
+  void 存在しない受講生IDを用いてコース情報の検索をかけたとき空のリストが返ってくること() {
+    String id = "9999"; // 存在しないIDと仮定
+
+    List<StudentCourse> result = sut.searchStudentCourse(id);
+
+    assertThat(result).isEmpty(); // リスト内が空であることを確認
+  }
+
+  @Test
+  void 新規で受講生登録を行なう際名前が入力されていない場合は例外を発生させること() {
+    Student student = new Student();
+    student.setName(null); // nameは必須(@NotBlankにより) → nullに設定
+    student.setKanaName("ヤマモト");
+    student.setNickname("ヤマ");
+    student.setEmail("yama@example.com");
+    student.setArea("東京");
+    student.setAge(25);
+    student.setSex("男性");
+    student.setRemark("");
+    student.setDeleted(false);
+
+    assertThrows(DataIntegrityViolationException.class, () -> {
+      sut.registerStudent(student);
+    });
+  }
+
+  @Test
+  void コース情報の登録の際コース名が入力されていなかった場合は例外を発生させること() {
+    StudentCourse studentCourse = new StudentCourse();
+    studentCourse.setStudentId("3"); // 存在するID
+    studentCourse.setCourseName(null); // ← course_name を null に
+    studentCourse.setCourseStartAt(LocalDateTime.of(2024, 1, 1, 9, 0));
+    studentCourse.setCourseEndAt(LocalDateTime.of(2024, 3, 1, 17, 0));
+
+    assertThrows(DataIntegrityViolationException.class, () -> {
+      sut.registerStudentCourse(studentCourse);
+    });
+  }
+
+  @Test
+  void 受講生更新の際に存在しない受講生IDを指定した場合エラーにはならず更新されないことを確認() {
+    Student student = new Student();
+    student.setId("9999"); // 存在しないID
+    student.setName("田中次郎");
+    student.setKanaName("タナカジロウ");
+    student.setNickname("ジロ");
+    student.setEmail("jiro@example.com");
+    student.setArea("大阪");
+    student.setAge(28);
+    student.setSex("男性");
+    student.setRemark("特になし");
+    student.setDeleted(false);
+
+    sut.updateStudent(student); // 例外にはならない
+
+    Student result = sut.searchStudent("9999");
+    assertThat(result).isNull(); // データが存在しないまま
+  }
+
+  @Test
+  void 受講生IDがnullの状態で更新をかけようとすると例外が発生すること() {
+    // まず正しいデータで登録
+    Student student = new Student(null, "鈴木三郎", "スズキサブロウ", "サブ", "saburo@example.com",
+        "名古屋", 40, "男性", "", false);
+    sut.registerStudent(student);
+
+    // 登録された ID を使って更新準備
+    student.setName(null); // name を null に
+
+    assertThrows(DataIntegrityViolationException.class, () -> {
+      sut.updateStudent(student);
+    });
+  }
+
+  @Test
+  void コース情報の更新をする際にコース名がnullなら例外を発生させること() {
+    // まず有効なデータを登録
+    Student student = new Student(null, "高橋五郎", "タカハシゴロウ", "ゴロー", "goro@example.com",
+        "福岡", 33, "男性", "", false);
+    sut.registerStudent(student);
+
+    StudentCourse studentCourse = new StudentCourse();
+    studentCourse.setStudentId(student.getId());
+    studentCourse.setCourseName("Javaコース");
+    studentCourse.setCourseStartAt(LocalDateTime.of(2024, 5, 1, 9, 0));
+    studentCourse.setCourseEndAt(LocalDateTime.of(2024, 8, 1, 17, 0));
+    sut.registerStudentCourse(studentCourse);
+
+    // nullを設定
+    studentCourse.setCourseName(null);
+
+    assertThrows(DataIntegrityViolationException.class, () -> {
+      sut.updateStudentCourse(studentCourse);
+    });
   }
 }
