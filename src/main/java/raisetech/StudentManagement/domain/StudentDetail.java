@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import raisetech.StudentManagement.data.Student;
+import raisetech.StudentManagement.data.StudentApplicationStatus;
 import raisetech.StudentManagement.data.StudentCourse;
 
 @Schema(description = "受講生詳細")
@@ -19,11 +20,13 @@ import raisetech.StudentManagement.data.StudentCourse;
 @EqualsAndHashCode
 public class StudentDetail {
 
-  //@Schema(description = "受講生", example = "田中太郎")
   @Valid
   private Student student;
 
-  //@Schema(description = "一人の受講生が受講しているコース一覧", example = "[Javaコース, AWSコース]")
   @Valid
   private List<StudentCourse> studentCourseList;
+
+  @Valid
+  private List<StudentApplicationStatus> studentApplicationStatus;
+
 }

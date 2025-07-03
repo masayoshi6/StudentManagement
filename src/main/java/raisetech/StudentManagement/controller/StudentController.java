@@ -110,13 +110,11 @@ public class StudentController {
       example = "123")
   @GetMapping("/student/{id}")
   public StudentDetail getStudent(@PathVariable @NotBlank @Pattern(regexp = "^\\d+$") String id) {
-    //throw new TestException(id + "番の人に対してエラーが発生しました");
     StudentDetail student = service.searchStudent(id);
     if (student == null) {
       throw new PracticeException("受講生が見つかりませんでした。ID: " + id);
     }
     return student;
-    //return service.searchStudent(id);
   }
 
   /**
@@ -169,9 +167,4 @@ public class StudentController {
 
     return ResponseEntity.ok(response);
   }
-
-  /*@ExceptionHandler(TestException.class)
-  public ResponseEntity<String> handleTestException(TestException ex) {
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-  }*/
 }

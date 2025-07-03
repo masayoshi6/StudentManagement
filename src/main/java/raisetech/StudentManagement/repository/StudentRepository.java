@@ -3,10 +3,11 @@ package raisetech.StudentManagement.repository;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import raisetech.StudentManagement.data.Student;
+import raisetech.StudentManagement.data.StudentApplicationStatus;
 import raisetech.StudentManagement.data.StudentCourse;
 
 /**
- * 受講生テーブルと受講生コース情報テーブルと紐づくRepositoryです。
+ * 受講生テーブルと受講生コース情報テーブル、および、コース申し込み状況テーブルと紐づくRepositoryです。
  */
 @Mapper
 public interface StudentRepository {
@@ -73,4 +74,26 @@ public interface StudentRepository {
    * @param studentCourse 受講生コース情報
    */
   void updateStudentCourse(StudentCourse studentCourse);
+
+  /**
+   * すべての受講生の申し込んでいるコースの申込状況の全件検索を行います。
+   *
+   * @return コースの申込状況一覧（全件）
+   */
+  List<StudentApplicationStatus> searchStudentApplicationStatus();
+
+  /**
+   * 受講生コース情報の申し込み状況を新規登録します。新規登録時は「仮申込」として登録されます。IDに関しては自動採番を行う。
+   *
+   * @param status 受講生コース情報の申込状況
+   */
+  void insertApplicationStatus(StudentApplicationStatus status);
+
+  /**
+   * 受講生コース情報の申込状況を更新します。
+   *
+   * @param status 受講生コース情報の申込状況
+   */
+  void updateApplicationStatus(StudentApplicationStatus status);
+
 }

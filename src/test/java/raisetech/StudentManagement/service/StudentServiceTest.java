@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import raisetech.StudentManagement.controller.converter.StudentConverter;
 import raisetech.StudentManagement.data.Student;
+import raisetech.StudentManagement.data.StudentApplicationStatus;
 import raisetech.StudentManagement.data.StudentCourse;
 import raisetech.StudentManagement.domain.StudentDetail;
 import raisetech.StudentManagement.repository.StudentRepository;
@@ -40,26 +41,18 @@ class StudentServiceTest {
     //事前準備
     List<Student> studentList = new ArrayList<>();
     List<StudentCourse> studentCourseList = new ArrayList<>();
+    List<StudentApplicationStatus> studentApplicationStatusList = new ArrayList<>();
 
     when(repository.search()).thenReturn(studentList);
     when(repository.searchStudentCourseList()).thenReturn(studentCourseList);
+    when(repository.searchStudentApplicationStatus()).thenReturn(studentApplicationStatusList);
 
     sut.searchStudentList();
 
     verify(repository, times(1)).search();
     verify(repository, times(1)).searchStudentCourseList();
-    verify(converter, times(1)).convertStudentDetails(studentList, studentCourseList);
-
-    //List<StudentDetail> expected = new ArrayList<>();
-
-    //実行
-    //List<StudentDetail> actual = sut.searchStudentList();
-
-    //検証
-    //Assertions.assertEquals(expected, actual);
-
-    //後処理
-    //ここでDBをもとに戻したりする
+    verify(converter, times(1)).convertStudentDetails(studentList, studentCourseList,
+        studentApplicationStatusList);
   }
 
   @Test
@@ -67,12 +60,16 @@ class StudentServiceTest {
     Student student = new Student("777", "田中太郎", "タナカタロウ", "タロ",
         "tokiwa@example.com", "名古屋", 18, "男性", "とても頑張ります", false);
     List<StudentCourse> studentCourses = new ArrayList<>();
+    List<StudentApplicationStatus> studentApplicationStatuses = new ArrayList<>();
 
     StudentCourse studentCourse = new StudentCourse("99", "777", "Javaコース",
         LocalDateTime.of(2025, 4, 1, 00, 00, 00),
         LocalDateTime.of(2026, 3, 31, 00, 00, 00));
-
     studentCourses.add(studentCourse);
+
+    StudentApplicationStatus studentApplicationStatus = new StudentApplicationStatus(555,
+        1234, "受講終了");
+    studentApplicationStatuses.add(studentApplicationStatus);
 
     when(repository.searchStudent("777")).thenReturn(student);
     when(repository.searchStudentCourse(student.getId())).thenReturn(studentCourses);
