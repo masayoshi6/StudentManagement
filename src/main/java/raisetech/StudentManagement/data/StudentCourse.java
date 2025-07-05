@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Schema(description = "受講生コース情報")
 @Getter
@@ -16,12 +17,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@ToString
 public class StudentCourse {
 
   //@NotBlank
   @Schema(description = "コースID", example = "5")
-  @Pattern(regexp = "^\\d+$", message = "数字のみ入力するようにしてください。")
-  private String id;
+  //@Pattern(regexp = "^\\d+$", message = "数字のみ入力するようにしてください。")
+  private Integer id;
 
   //@NotBlank
   @Schema(description = "受講生ID", example = "7")

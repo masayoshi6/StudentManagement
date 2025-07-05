@@ -28,6 +28,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import raisetech.StudentManagement.data.Student;
+import raisetech.StudentManagement.data.StudentApplicationStatus;
 import raisetech.StudentManagement.data.StudentCourse;
 import raisetech.StudentManagement.domain.StudentDetail;
 import raisetech.StudentManagement.exception.PracticeException;
@@ -94,15 +95,14 @@ class StudentControllerTest {
   void 存在する受講生IDを用いて検索をし適切な受講生詳細オブジェクトが返ってくること()
       throws Exception {
     //↓ 前準備
-    Student mockStudent = new Student("1", "田中太郎", "タナカタロウ", "タロ",
-        "taro@example.com", "東京", 35, "男性", "", false);
+    Student mockStudent = getStudent();
 
-    StudentCourse mockStudentCourse = new StudentCourse("5", "1", "Javaコース",
-        LocalDateTime.of(2025, 4, 1, 00, 00),
-        LocalDateTime.of(2026, 3, 31, 00, 00));
+    List<StudentCourse> mockStudentCourseList = getStudentCourses();
 
-    List<StudentCourse> mockStudentCourseList = List.of(mockStudentCourse);
-    StudentDetail mockStudentDetail = new StudentDetail(mockStudent, mockStudentCourseList);
+    List<StudentApplicationStatus> mockStudentApplicationStatusList = getStudentApplicationStatuses();
+
+    StudentDetail mockStudentDetail = new StudentDetail(mockStudent, mockStudentCourseList,
+        mockStudentApplicationStatusList);
     //↑ ここまでが前準備
     when(service.searchStudent(mockStudent.getId())).thenReturn(mockStudentDetail);
 
@@ -122,12 +122,19 @@ class StudentControllerTest {
         },
         "studentCourseList": [
         {
-            "id": "5",
+            "id": 5,
             "studentId": "1",
             "courseName": "Javaコース",
             "courseStartAt": "2025-04-01T00:00:00",
             "courseEndAt": "2026-03-31T00:00:00"
         }
+        ],
+        "studentApplicationStatus": [
+                {
+                    "id": 1,
+                    "studentCourseId": 5,
+                    "status": "本申込"
+                }
         ]
         }""";
 
@@ -135,6 +142,7 @@ class StudentControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().json(expectedJson));
   }
+
 
   @Test
   void 存在しない受講生IDを用いて検索をしたときに適切なエラーメッセージが返ってくること()
@@ -166,16 +174,16 @@ class StudentControllerTest {
   @Test
   void 受講生登録が成功すること() throws Exception {
     // 前準備
-    Student mockStudent = new Student("1", "田中太郎", "タナカタロウ", "タロ",
-        "taro@example.com", "東京", 35, "男性", "", false);
+    Student mockStudent = getStudent();
 
-    StudentCourse mockStudentCourse = new StudentCourse("5", "1", "Javaコース",
-        LocalDateTime.of(2025, 4, 1, 00, 00),
-        LocalDateTime.of(2026, 3, 31, 00, 00));
+    List<StudentCourse> mockStudentCourseList = getStudentCourses();
 
-    List<StudentCourse> mockStudentCourseList = List.of(mockStudentCourse);
-    StudentDetail request = new StudentDetail(mockStudent, mockStudentCourseList);
-    StudentDetail response = new StudentDetail(mockStudent, mockStudentCourseList);
+    List<StudentApplicationStatus> mockStudentApplicationStatusList = getApplicationStatuses();
+
+    StudentDetail request = new StudentDetail(mockStudent, mockStudentCourseList,
+        mockStudentApplicationStatusList);
+    StudentDetail response = new StudentDetail(mockStudent, mockStudentCourseList,
+        mockStudentApplicationStatusList);
     //↑ ここまでが前準備
 
     when(service.registerStudent(any(StudentDetail.class))).thenReturn(response);
@@ -196,12 +204,19 @@ class StudentControllerTest {
         },
         "studentCourseList": [
         {
-            "id": "5",
+            "id": 5,
             "studentId": "1",
             "courseName": "Javaコース",
             "courseStartAt": "2025-04-01T00:00:00",
             "courseEndAt": "2026-03-31T00:00:00"
         }
+        ],
+        "studentApplicationStatus": [
+                {
+                    "id": 1,
+                    "studentCourseId": 5,
+                    "status": "仮申込"
+                }
         ]
         }""";
     mockMvc.perform(
@@ -216,15 +231,14 @@ class StudentControllerTest {
   @Test
   void 受講生情報の更新に成功すること() throws Exception {
     // 前準備（リクエスト用オブジェクトを準備）
-    Student mockStudent = new Student("1", "田中太郎", "タナカタロウ", "タロ",
-        "taro@example.com", "東京", 35, "男性", "", false);
+    Student mockStudent = getStudent();
 
-    StudentCourse mockStudentCourse = new StudentCourse("5", "1", "Javaコース",
-        LocalDateTime.of(2025, 4, 1, 00, 00),
-        LocalDateTime.of(2026, 3, 31, 00, 00));
+    List<StudentCourse> mockStudentCourseList = getStudentCourses();
 
-    List<StudentCourse> mockStudentCourseList = List.of(mockStudentCourse);
-    StudentDetail request = new StudentDetail(mockStudent, mockStudentCourseList);
+    List<StudentApplicationStatus> mockStudentApplicationStatusList = getApplicationStatuses();
+
+    StudentDetail request = new StudentDetail(mockStudent, mockStudentCourseList,
+        mockStudentApplicationStatusList);
 
     doNothing().when(service).updateStudent(any(StudentDetail.class));
 
@@ -236,6 +250,7 @@ class StudentControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().json("{\"message\":\"更新処理が成功しました。\"}"));
   }
+
 
   @Test
   void 強制的に例外を発生させるHTTPの実行時にレスポンスのステータスがisOkでないことを検証する()
@@ -250,25 +265,42 @@ class StudentControllerTest {
 
   @Test
   void 受講生詳細の受講生コース情報で適切な値を入力した時に入力チェックに異常が発生しないこと() {
-    StudentCourse studentCourse = new StudentCourse("5", "1", "Javaコース",
-        LocalDateTime.of(2025, 4, 1, 00, 00),
-        LocalDateTime.of(2026, 3, 31, 00, 00));
+    StudentCourse studentCourse = getStudentCourse();
 
     Set<ConstraintViolation<StudentCourse>> violations = validator.validate(studentCourse);
 
     assertThat(violations.size()).isEqualTo(0);
   }
 
-  @Test
-  void 受講生詳細の受講生コース情報でコースIDに数字以外を用いた時に入力チェックに掛かること() {
-    StudentCourse studentCourse = new StudentCourse("テストです。", "1", "Javaコース",
-        LocalDateTime.of(2025, 4, 1, 00, 00),
-        LocalDateTime.of(2026, 3, 31, 00, 00));
-
-    Set<ConstraintViolation<StudentCourse>> violations = validator.validate(studentCourse);
-
-    assertThat(violations.size()).isEqualTo(1);
-    assertThat(violations).extracting("message")
-        .containsOnly("数字のみ入力するようにしてください。");
+  //以下は、メソッド抽出を行なったメソッドです！　
+  //DTOクラスのコンストラクタの呼び出しおよび、そのリスト化などを行なっております！
+  private Student getStudent() {
+    Student mockStudent = new Student("1", "田中太郎", "タナカタロウ", "タロ",
+        "taro@example.com", "東京", 35, "男性", "", false);
+    return mockStudent;
   }
+
+  private List<StudentCourse> getStudentCourses() {
+    StudentCourse mockStudentCourse = getStudentCourse();
+    return List.of(mockStudentCourse);
+  }
+
+  private StudentCourse getStudentCourse() {
+    return new StudentCourse(5, "1", "Javaコース",
+        LocalDateTime.of(2025, 4, 1, 0, 0),
+        LocalDateTime.of(2026, 3, 31, 0, 0));
+  }
+
+  private List<StudentApplicationStatus> getStudentApplicationStatuses() {
+    StudentApplicationStatus mockStudentApplicationStatus = new StudentApplicationStatus(1, 5,
+        "本申込");
+    return List.of(mockStudentApplicationStatus);
+  }
+
+  private List<StudentApplicationStatus> getApplicationStatuses() {
+    StudentApplicationStatus mockStudentApplicationStatus = new StudentApplicationStatus(1, 5,
+        "仮申込");
+    return List.of(mockStudentApplicationStatus);
+  }
+
 }

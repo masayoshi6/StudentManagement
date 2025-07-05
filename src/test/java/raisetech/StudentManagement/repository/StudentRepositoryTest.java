@@ -11,6 +11,7 @@ import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import raisetech.StudentManagement.data.Student;
+import raisetech.StudentManagement.data.StudentApplicationStatus;
 import raisetech.StudentManagement.data.StudentCourse;
 
 @MybatisTest
@@ -70,11 +71,11 @@ class StudentRepositoryTest {
     Student student = new Student();
     student.setId("1");
 
-    StudentCourse studentCourse1 = getStudentCourse("1", "Javaコース");
+    StudentCourse studentCourse1 = getStudentCourse(1, "Javaコース");
 
-    StudentCourse studentCourse2 = getStudentCourse("2", "AWSコース");
+    StudentCourse studentCourse2 = getStudentCourse(2, "AWSコース");
 
-    StudentCourse studentCourse3 = getStudentCourse("10", "Web制作コース");
+    StudentCourse studentCourse3 = getStudentCourse(10, "Web制作コース");
 
     List<StudentCourse> actual = sut.searchStudentCourse("1");
     assertEquals(student.getId(), studentCourse1.getStudentId());
@@ -129,7 +130,7 @@ class StudentRepositoryTest {
   void 受講生コース情報のコース名が更新できること() {
     Student student = getStudent();
 
-    StudentCourse studentCourse = getStudentCourse("1", "数学コース");
+    StudentCourse studentCourse = getStudentCourse(1, "数学コース");
     studentCourse.setCourseStartAt(LocalDateTime.of(2023, 4, 1, 9, 0, 0));
     studentCourse.setCourseEndAt(LocalDateTime.of(2023, 7, 1, 15, 0, 0));
 
@@ -137,31 +138,42 @@ class StudentRepositoryTest {
 
     assertEquals(student.getId(), studentCourse.getStudentId());
 
-    assertEquals(studentCourse.getCourseName(), "数学コース");
+    assertEquals("数学コース", studentCourse.getCourseName());
 
   }
 
-  private Student getStudent() {
-    Student student = new Student();
-    student.setId("1");
-    student.setName("山田太郎");
-    student.setKanaName("ヤマダタロウ");
-    student.setNickname("タロ");
-    student.setEmail("taro@example.com");
-    student.setArea("東京");
-    student.setAge(25);
-    student.setSex("男性");
-    student.setRemark("");
-    student.setDeleted(false);
-    return student;
+  @Test
+  void すべての受講生の申し込んでいるコースの申し込み状況が全件検索できること() {
+    List<StudentApplicationStatus> actual = sut.searchStudentApplicationStatus();
+    assertThat(actual.size()).isEqualTo(10);
   }
 
-  private StudentCourse getStudentCourse(String number, String courseName) {
-    StudentCourse studentCourse1 = new StudentCourse();
-    studentCourse1.setId(number);
-    studentCourse1.setStudentId("1");
-    studentCourse1.setCourseName(courseName);
-    return studentCourse1;
+  @Test
+  void 受講生のコース申込状況の登録ができること() {
+    StudentApplicationStatus studentApplicationStatus = new StudentApplicationStatus();
+    studentApplicationStatus.setStudentCourseId(8);
+    studentApplicationStatus.setStatus("仮申込");
+
+    sut.registerApplicationStatus(studentApplicationStatus);
+
+    List<StudentApplicationStatus> actual = sut.searchStudentApplicationStatus();
+    assertThat(actual.size()).isEqualTo(11);
+  }
+
+  @Test
+  void 受講生コース申し込み状況が更新できること() {
+    Student student = getStudent();
+    StudentCourse studentCourse = getStudentCourse(1, "数学コース");
+    StudentApplicationStatus studentApplicationStatus = new StudentApplicationStatus(1, 1,
+        "受講中");
+
+    sut.updateApplicationStatus(studentApplicationStatus);
+
+    assertEquals(student.getId(), studentCourse.getStudentId());
+    assertEquals(studentCourse.getId(),
+        studentApplicationStatus.getStudentCourseId());
+
+    assertEquals("受講中", studentApplicationStatus.getStatus());
   }
 
   //以下は、「異常系」のテストです！
@@ -211,6 +223,17 @@ class StudentRepositoryTest {
 
     assertThrows(DataIntegrityViolationException.class, () -> {
       sut.registerStudentCourse(studentCourse);
+    });
+  }
+
+  @Test
+  void コース申込状況の登録の際申し込み状況が入力されていなかった場合は例外を発生させること() {
+    StudentApplicationStatus studentApplicationStatus = new StudentApplicationStatus();
+    studentApplicationStatus.setStudentCourseId(3); // 存在するID
+    studentApplicationStatus.setStatus(null); // ← status を null に
+
+    assertThrows(DataIntegrityViolationException.class, () -> {
+      sut.registerApplicationStatus(studentApplicationStatus);
     });
   }
 
@@ -270,4 +293,55 @@ class StudentRepositoryTest {
       sut.updateStudentCourse(studentCourse);
     });
   }
+
+  @Test
+  void コース申し込み状況の更新をする際に申し込み状況がnullなら例外を発生させること() {
+    // まず有効なデータを登録
+    Student student = new Student(null, "高橋五郎", "タカハシゴロウ", "ゴロー", "goro@example.com",
+        "福岡", 33, "男性", "", false);
+    sut.registerStudent(student);
+
+    StudentCourse studentCourse = new StudentCourse();
+    studentCourse.setStudentId(student.getId());
+    studentCourse.setCourseName("Javaコース");
+    studentCourse.setCourseStartAt(LocalDateTime.of(2024, 5, 1, 9, 0));
+    studentCourse.setCourseEndAt(LocalDateTime.of(2024, 8, 1, 17, 0));
+    sut.registerStudentCourse(studentCourse);
+
+    StudentApplicationStatus studentApplicationStatus = new StudentApplicationStatus(8,
+        studentCourse.getId(), "本申込");
+
+    // nullを設定
+    studentApplicationStatus.setStatus(null);
+
+    assertThrows(DataIntegrityViolationException.class, () -> {
+      sut.updateApplicationStatus(studentApplicationStatus);
+    });
+  }
+
+  //以下は、メソッド抽出を行なったメソッドです！　
+  //DTOクラスのインスタンス生成を行なっております！
+  private Student getStudent() {
+    Student student = new Student();
+    student.setId("1");
+    student.setName("山田太郎");
+    student.setKanaName("ヤマダタロウ");
+    student.setNickname("タロ");
+    student.setEmail("taro@example.com");
+    student.setArea("東京");
+    student.setAge(25);
+    student.setSex("男性");
+    student.setRemark("");
+    student.setDeleted(false);
+    return student;
+  }
+
+  private StudentCourse getStudentCourse(Integer number, String courseName) {
+    StudentCourse studentCourse = new StudentCourse();
+    studentCourse.setId(number);
+    studentCourse.setStudentId("1");
+    studentCourse.setCourseName(courseName);
+    return studentCourse;
+  }
+
 }

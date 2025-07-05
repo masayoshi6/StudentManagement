@@ -50,4 +50,24 @@
     UPDATE students_courses SET course_name = #{courseName} WHERE id = #{id}
   </update>
 
+  <!-- すべての受講生のコース情報の申込状況の全件検索　-->
+  <select id="searchStudentApplicationStatus"
+    resultType="raisetech.StudentManagement.data.StudentApplicationStatus">
+    SELECT * FROM students_application_status
+  </select>
+
+  <!-- 受講生のコース情報の申込状況の新規登録（初回登録時は「仮申込」として登録される -->
+  <!-- @OptionsはINSERTするときにだけ付ける！！  -->
+  <insert id="registerApplicationStatus" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO students_application_status (student_course_id, status)
+    VALUES (#{studentCourseId}, #{status})
+  </insert>
+
+  <!-- 受講生のコース情報の申込状況を更新 -->
+  <update id="updateApplicationStatus">
+    UPDATE students_application_status
+    SET status = #{status}
+    WHERE id = #{id}
+  </update>
+
 </mapper>
