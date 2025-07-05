@@ -272,21 +272,6 @@ class StudentControllerTest {
     assertThat(violations.size()).isEqualTo(0);
   }
 
-
-  /*@Test
-  void 受講生詳細の受講生コース情報でコースIDに数字以外を用いた時に入力チェックに掛かること() {
-    StudentCourse studentCourse = new StudentCourse();
-    studentCourse.setId(abc);テストです, "1", "Javaコース",
-        LocalDateTime.of(2025, 4, 1, 0, 0),
-        LocalDateTime.of(2026, 3, 31, 0, 0));
-
-    Set<ConstraintViolation<StudentCourse>> violations = validator.validate(studentCourse);
-
-    assertThat(violations.size()).isEqualTo(1);
-    assertThat(violations).extracting("message")
-        .containsOnly("数字のみ入力するようにしてください。");
-  }*/
-
   //以下は、メソッド抽出を行なったメソッドです！　
   //DTOクラスのコンストラクタの呼び出しおよび、そのリスト化などを行なっております！
   private Student getStudent() {

@@ -69,21 +69,23 @@ public class StudentService {
   @Transactional
   public StudentDetail registerStudent(StudentDetail studentDetail) {
     Student student = studentDetail.getStudent();
+    // TODO 受講生情報を登録
     repository.registerStudent(student);
 
     List<StudentApplicationStatus> statusList = new ArrayList<>();
 
+    // TODO コース情報と申込ステータスを登録
     studentDetail.getStudentCourseList().forEach(studentCourse -> {
       initStudentsCourse(studentCourse, student.getId());
       repository.registerStudentCourse(studentCourse);
-
+      // TODO 申込ステータスを作成して「仮申込」に設定して登録
       StudentApplicationStatus status = new StudentApplicationStatus();
       status.setStudentCourseId(studentCourse.getId());
       status.setStatus("仮申込");
 
       repository.registerApplicationStatus(status);
 
-      // ← 登録したstatusをリストに追加
+      // 登録したstatusをリストに追加
       statusList.add(status);
     });
 
@@ -92,37 +94,6 @@ public class StudentService {
 
     return studentDetail;
   }
-
-  /*@Transactional
-  public StudentDetail registerStudent(StudentDetail studentDetail) {
-    Student student = studentDetail.getStudent();
-
-    // TODO 受講生情報を登録
-    repository.registerStudent(student);
-
-    // TODO コース情報と申込ステータスを登録
-    studentDetail.getStudentCourseList().forEach(studentCourse -> {
-      // 初期情報（受講生ID、開始日・終了日）を設定
-      initStudentsCourse(studentCourse, student.getId());
-
-      // TODO コース登録
-      repository.registerStudentCourse(studentCourse);
-
-      // TODO 申込ステータスを作成して「仮申込」に設定して登録
-      /*studentDetail.getStudentApplicationStatus().forEach(studentApplicationStatus -> {
-        studentApplicationStatus.setStudentCourseId(studentCourse.getId());
-        studentApplicationStatus.setStatus("仮申込");
-
-        repository.registerApplicationStatus(studentApplicationStatus);
-      });*/
-  //最初の回答
-     /* StudentApplicationStatus status = new StudentApplicationStatus();
-      status.setStudentCourseId(studentCourse.getId());
-      status.setStatus("仮申込");
-      repository.registerApplicationStatus(status);
-    });
-    return studentDetail;
-  }*/
 
   /**
    * 受講生コース情報を登録する際の初期情報を設定する。
