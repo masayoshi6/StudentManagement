@@ -2,6 +2,7 @@ package raisetech.StudentManagement.controller.converter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import raisetech.StudentManagement.data.Student;
@@ -44,7 +45,7 @@ public class StudentConverter {
       List<StudentApplicationStatus> matchedStatuses = studentApplicationStatusList.stream()
           .filter(status -> matchedCourses.stream()
               .anyMatch(
-                  course -> Integer.parseInt(course.getId()) == status.getStudentCourseId()))
+                  course -> Objects.equals(course.getId(), status.getStudentCourseId())))
           .collect(Collectors.toList());
       studentDetail.setStudentApplicationStatus(matchedStatuses);
 

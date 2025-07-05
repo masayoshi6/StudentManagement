@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentApplicationStatus;
 import raisetech.StudentManagement.data.StudentCourse;
@@ -18,6 +19,7 @@ import raisetech.StudentManagement.data.StudentCourse;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@ToString
 public class StudentDetail {
 
   @Valid

@@ -87,7 +87,7 @@ public interface StudentRepository {
    *
    * @param status 受講生コース情報の申込状況
    */
-  void insertApplicationStatus(StudentApplicationStatus status);
+  void registerApplicationStatus(StudentApplicationStatus status);
 
   /**
    * 受講生コース情報の申込状況を更新します。

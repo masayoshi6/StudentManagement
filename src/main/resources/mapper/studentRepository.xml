@@ -58,7 +58,7 @@
 
   <!-- 受講生のコース情報の申込状況の新規登録（初回登録時は「仮申込」として登録される -->
   <!-- @OptionsはINSERTするときにだけ付ける！！  -->
-  <insert id="insertApplicationStatus" useGeneratedKeys="true" keyProperty="id">
+  <insert id="registerApplicationStatus" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO students_application_status (student_course_id, status)
     VALUES (#{studentCourseId}, #{status})
   </insert>

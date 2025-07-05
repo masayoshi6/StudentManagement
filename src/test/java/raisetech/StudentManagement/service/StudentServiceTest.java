@@ -1,6 +1,8 @@
 package raisetech.StudentManagement.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -57,68 +59,82 @@ class StudentServiceTest {
 
   @Test
   void 受講生詳細検索＿リポジトリの処理が適切に呼び出せており受講生詳細のオブジェクトが正確に返されていること() {
-    Student student = new Student("777", "田中太郎", "タナカタロウ", "タロ",
-        "tokiwa@example.com", "名古屋", 18, "男性", "とても頑張ります", false);
-    List<StudentCourse> studentCourses = new ArrayList<>();
-    List<StudentApplicationStatus> studentApplicationStatuses = new ArrayList<>();
+    Student student = getStudent();
 
-    StudentCourse studentCourse = new StudentCourse("99", "777", "Javaコース",
-        LocalDateTime.of(2025, 4, 1, 00, 00, 00),
-        LocalDateTime.of(2026, 3, 31, 00, 00, 00));
-    studentCourses.add(studentCourse);
+    List<StudentCourse> studentCourses = getStudentCourses();
 
-    StudentApplicationStatus studentApplicationStatus = new StudentApplicationStatus(555,
-        1234, "受講終了");
-    studentApplicationStatuses.add(studentApplicationStatus);
+    List<StudentApplicationStatus> studentApplicationStatuses = getStudentApplicationStatuses();
 
     when(repository.searchStudent("777")).thenReturn(student);
     when(repository.searchStudentCourse(student.getId())).thenReturn(studentCourses);
+    when(repository.searchStudentApplicationStatus()).thenReturn(studentApplicationStatuses);
 
-    StudentDetail expected = new StudentDetail(student, studentCourses);
+    StudentDetail expected = new StudentDetail(student, studentCourses, studentApplicationStatuses);
     StudentDetail actual = sut.searchStudent("777");
 
     verify(repository, times(1)).searchStudent("777");
     verify(repository, times(1)).searchStudentCourse(student.getId());
+    verify(repository, times(1)).searchStudentApplicationStatus();
+    /*System.out.println("expected: " + expected);
+    System.out.println("actual:   " + actual);*/
+
     assertEquals(expected, actual);
   }
 
   @Test
-  void 受講生登録＿リポジトリと受講生コース情報を登録する際の初期情報を設定する処理及び登録情報をまとめた受講生詳細のオブジェクトが正確に返されていること() {
-    Student student = new Student("777", "田中太郎", "タナカタロウ", "タロ",
-        "tokiwa@example.com", "名古屋", 18, "男性", "とても頑張ります", false);
+  void 受講生登録＿初期情報設定と登録情報が正しく返されること() {
+    Student student = getStudent();
+
     List<StudentCourse> studentCourses = new ArrayList<>();
-
-    StudentCourse studentCourse = new StudentCourse("99", "777", "Javaコース",
-        LocalDateTime.of(2025, 4, 1, 00, 00, 00),
-        LocalDateTime.of(2026, 3, 31, 00, 00, 00));
-
+    StudentCourse studentCourse = new StudentCourse(99, "777", "Javaコース",
+        LocalDateTime.of(2025, 4, 1, 0, 0, 0),
+        LocalDateTime.of(2026, 3, 31, 0, 0, 0));
     studentCourses.add(studentCourse);
 
-    StudentDetail expected = new StudentDetail(student, studentCourses);
-    StudentDetail actual = sut.registerStudent(new StudentDetail(student, studentCourses));
+    StudentDetail request = new StudentDetail(student, studentCourses, List.of());
 
-    verify(repository, times(1)).registerStudent(student);
-    verify(repository, times(1)).registerStudentCourse(studentCourse);
-    assertEquals(expected, actual);
+    StudentDetail actual = sut.registerStudent(request);
+
+    verify(repository).registerStudent(student);
+    verify(repository).registerStudentCourse(studentCourse);
+    verify(repository).registerApplicationStatus(
+        argThat(status ->
+            status.getStudentCourseId().equals(99) &&
+                status.getStatus().equals("仮申込"))
+    );
+
+    assertEquals(student, actual.getStudent());
+    assertEquals(studentCourses, actual.getStudentCourseList());
+
+    StudentApplicationStatus actualStatus = actual.getStudentApplicationStatus().get(0);
+    assertEquals(99, actualStatus.getStudentCourseId());
+    assertEquals("仮申込", actualStatus.getStatus());
+    assertNull(actualStatus.getId()); // 自動採番なのでnullのまま
   }
 
   @Test
   void 受講生情報の更新＿リポジトリの処理が適切に呼び出せていること() {
-    Student student = new Student("777", "田中太郎", "タナカタロウ", "タロ",
-        "tokiwa@example.com", "名古屋", 18, "男性", "とても頑張ります", false);
+    Student student = getStudent();
+
     List<StudentCourse> studentCourses = new ArrayList<>();
-
-    StudentCourse studentCourse = new StudentCourse("99", "777", "Javaコース",
-        LocalDateTime.of(2025, 4, 1, 00, 00, 00),
-        LocalDateTime.of(2026, 3, 31, 00, 00, 00));
-
+    StudentCourse studentCourse = new StudentCourse(99, "777", "Javaコース",
+        LocalDateTime.of(2025, 4, 1, 0, 0, 0),
+        LocalDateTime.of(2026, 3, 31, 0, 0, 0));
     studentCourses.add(studentCourse);
-    StudentDetail studentDetail = new StudentDetail(student, studentCourses);
+
+    List<StudentApplicationStatus> studentApplicationStatuses = new ArrayList<>();
+    StudentApplicationStatus studentApplicationStatus = new StudentApplicationStatus(555,
+        1234, "受講終了");
+    studentApplicationStatuses.add(studentApplicationStatus);
+
+    StudentDetail studentDetail = new StudentDetail(student, studentCourses,
+        studentApplicationStatuses);
 
     sut.updateStudent(studentDetail);
 
     verify(repository, times(1)).updateStudent(student);
     verify(repository, times(1)).updateStudentCourse(studentCourse);
+    verify(repository, times(1)).updateApplicationStatus(studentApplicationStatus);
   }
 
   @Test
@@ -136,4 +152,30 @@ class StudentServiceTest {
     assertEquals(LocalDateTime.now().plusYears(1).getYear(),
         studentCourse.getCourseEndAt().getYear());
   }
+
+
+  //以下は、メソッド抽出を行なったメソッドです！　
+  //DTOクラスのコンストラクタの呼び出しおよび、そのリスト化などを行なっております！
+  private Student getStudent() {
+    return new Student("777", "田中太郎", "タナカタロウ", "タロ",
+        "tokiwa@example.com", "名古屋", 18, "男性", "とても頑張ります", false);
+  }
+
+  private List<StudentCourse> getStudentCourses() {
+    List<StudentCourse> studentCourses = new ArrayList<>();
+    StudentCourse studentCourse = new StudentCourse(99, "777", "Javaコース",
+        LocalDateTime.of(2025, 4, 1, 0, 0, 0),
+        LocalDateTime.of(2026, 3, 31, 0, 0, 0));
+    studentCourses.add(studentCourse);
+    return studentCourses;
+  }
+
+  private List<StudentApplicationStatus> getStudentApplicationStatuses() {
+    List<StudentApplicationStatus> studentApplicationStatuses = new ArrayList<>();
+    StudentApplicationStatus studentApplicationStatus = new StudentApplicationStatus(555,
+        99, "受講終了");
+    studentApplicationStatuses.add(studentApplicationStatus);
+    return studentApplicationStatuses;
+  }
+
 }

@@ -69,6 +69,33 @@ public class StudentService {
   @Transactional
   public StudentDetail registerStudent(StudentDetail studentDetail) {
     Student student = studentDetail.getStudent();
+    repository.registerStudent(student);
+
+    List<StudentApplicationStatus> statusList = new ArrayList<>();
+
+    studentDetail.getStudentCourseList().forEach(studentCourse -> {
+      initStudentsCourse(studentCourse, student.getId());
+      repository.registerStudentCourse(studentCourse);
+
+      StudentApplicationStatus status = new StudentApplicationStatus();
+      status.setStudentCourseId(studentCourse.getId());
+      status.setStatus("仮申込");
+
+      repository.registerApplicationStatus(status);
+
+      // ← 登録したstatusをリストに追加
+      statusList.add(status);
+    });
+
+    // ← 最後にセットする
+    studentDetail.setStudentApplicationStatus(statusList);
+
+    return studentDetail;
+  }
+
+  /*@Transactional
+  public StudentDetail registerStudent(StudentDetail studentDetail) {
+    Student student = studentDetail.getStudent();
 
     // TODO 受講生情報を登録
     repository.registerStudent(student);
@@ -82,15 +109,20 @@ public class StudentService {
       repository.registerStudentCourse(studentCourse);
 
       // TODO 申込ステータスを作成して「仮申込」に設定して登録
-      StudentApplicationStatus applicationStatus = new StudentApplicationStatus();
-      applicationStatus.setStudentCourseId(Integer.parseInt(studentCourse.getId()));
-      applicationStatus.setStatus("仮申込");
+      /*studentDetail.getStudentApplicationStatus().forEach(studentApplicationStatus -> {
+        studentApplicationStatus.setStudentCourseId(studentCourse.getId());
+        studentApplicationStatus.setStatus("仮申込");
 
-      repository.insertApplicationStatus(applicationStatus);
+        repository.registerApplicationStatus(studentApplicationStatus);
+      });*/
+  //最初の回答
+     /* StudentApplicationStatus status = new StudentApplicationStatus();
+      status.setStudentCourseId(studentCourse.getId());
+      status.setStatus("仮申込");
+      repository.registerApplicationStatus(status);
     });
-
     return studentDetail;
-  }
+  }*/
 
   /**
    * 受講生コース情報を登録する際の初期情報を設定する。
