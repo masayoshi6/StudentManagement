@@ -75,8 +75,6 @@ class StudentServiceTest {
     verify(repository, times(1)).searchStudent("777");
     verify(repository, times(1)).searchStudentCourse(student.getId());
     verify(repository, times(1)).searchStudentApplicationStatus();
-    /*System.out.println("expected: " + expected);
-    System.out.println("actual:   " + actual);*/
 
     assertEquals(expected, actual);
   }
