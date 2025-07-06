@@ -51,7 +51,7 @@ public class StudentService {
     Student student = repository.searchStudent(id);
     List<StudentCourse> studentCourse = repository.searchStudentCourse(student.getId());
     List<StudentApplicationStatus> statusList = new ArrayList<>();
-    studentCourse.stream().map(course -> Integer.valueOf(course.getId())).forEach(courseId -> {
+    studentCourse.stream().map(course -> course.getId()).forEach(courseId -> {
       List<StudentApplicationStatus> studentApplicationStatusList = repository.searchStudentApplicationStatus();
       studentApplicationStatusList.stream()
           .filter(status -> courseId.equals(status.getStudentCourseId())).forEach(statusList::add);

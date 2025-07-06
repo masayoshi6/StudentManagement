@@ -2,7 +2,7 @@ package raisetech.StudentManagement.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
@@ -154,7 +154,7 @@ class StudentControllerTest {
     mockMvc.perform(MockMvcRequestBuilders.get("/student/{id}", studentId))
         .andExpect(status().isNotFound())
         .andExpect(result ->
-            assertTrue(result.getResolvedException() instanceof PracticeException))
+            assertInstanceOf(PracticeException.class, result.getResolvedException()))
         .andExpect(result ->
             assertEquals("受講生が見つかりませんでした。ID: " + studentId,
                 result.getResolvedException().getMessage()));
@@ -258,7 +258,7 @@ class StudentControllerTest {
     mockMvc.perform(MockMvcRequestBuilders.get("/practiceException"))
         .andExpect(status().isNotFound()) // 404エラーを期待
         .andExpect(result ->
-            assertTrue(result.getResolvedException() instanceof PracticeException))
+            assertInstanceOf(PracticeException.class, result.getResolvedException()))
         .andExpect(result ->
             assertEquals("エラー発生", result.getResolvedException().getMessage()));
   }
@@ -275,9 +275,8 @@ class StudentControllerTest {
   //以下は、メソッド抽出を行なったメソッドです！　
   //DTOクラスのコンストラクタの呼び出しおよび、そのリスト化などを行なっております！
   private Student getStudent() {
-    Student mockStudent = new Student("1", "田中太郎", "タナカタロウ", "タロ",
+    return new Student("1", "田中太郎", "タナカタロウ", "タロ",
         "taro@example.com", "東京", 35, "男性", "", false);
-    return mockStudent;
   }
 
   private List<StudentCourse> getStudentCourses() {
