@@ -8,9 +8,11 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -151,13 +154,11 @@ class StudentControllerTest {
     String studentId = "999";
     when(service.searchStudent(studentId)).thenReturn(null);
 
-    mockMvc.perform(MockMvcRequestBuilders.get("/student/{id}", studentId))
+    mockMvc.perform(get("/student/999"))
         .andExpect(status().isNotFound())
-        .andExpect(result ->
-            assertInstanceOf(PracticeException.class, result.getResolvedException()))
-        .andExpect(result ->
-            assertEquals("受講生が見つかりませんでした。ID: " + studentId,
-                result.getResolvedException().getMessage()));
+        .andExpect(jsonPath("$.status").value(404))
+        .andExpect(jsonPath("$.message[0]").value("受講生が見つかりませんでした。ID: 999"));
+
   }
 
   @Test
@@ -300,6 +301,88 @@ class StudentControllerTest {
     StudentApplicationStatus mockStudentApplicationStatus = new StudentApplicationStatus(1, 5,
         "仮申込");
     return List.of(mockStudentApplicationStatus);
+  }
+
+  @Test
+  void カナ名がアから始まる受講生の検索ができること() throws Exception {
+    String prefix = "ア";
+    Student student = new Student("1", "相川かずき", "アイカワカズキ", "カズ",
+        "kazu@example.com", "東京", 35, "男性", "", false);
+
+    List<StudentDetail> mockList = List.of(new StudentDetail(student, List.of(getStudentCourse()),
+        getApplicationStatuses()));
+
+    Mockito.when(service.findStudentsByNamePrefix(prefix)).thenReturn(mockList);
+
+    mockMvc.perform(get("/starts-with/{prefix}", "ア"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].student.name").value("相川かずき"))
+        .andExpect(jsonPath("$[0].student.kanaName").value("アイカワカズキ"));
+
+  }
+
+  @Test
+  void カナ名検索時に全角カタカナ１文字以外をしようして検索をかけると例外が発生すること()
+      throws Exception {
+    // ひらがななどの無効な文字
+    mockMvc.perform(get("/starts-with/{prefix}", "あ"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void カナ名検索時に空文字で検索をかけたら例外が発生すること() throws Exception {
+    mockMvc.perform(get("/starts-with/{prefix}", " "))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void 受講生の年齢検索が適切に行えること() throws Exception {
+    Student student = new Student("1", "相川かずき", "アイカワカズキ", "カズ",
+        "kazu@example.com", "東京", 23, "男性", "", false);
+
+    List<StudentDetail> mockList = List.of(new StudentDetail(student, List.of(getStudentCourse()),
+        getApplicationStatuses()));
+    Mockito.when(service.findStudentsByAgeRange(20, 29)).thenReturn(mockList);
+
+    mockMvc.perform(get("/age-range")
+            .param("min", "20")
+            .param("max", "29"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].student.id").value("1"))
+        .andExpect(jsonPath("$[0].student.name").value("相川かずき"));
+  }
+
+  @Test
+  void 年齢検索でminの方がmaxよりも大きい数値で検索をかけた場合に例外を発生させること()
+      throws Exception {
+    mockMvc.perform(get("/age-range")
+            .param("min", "30")
+            .param("max", "20"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void 年齢検索で検索範囲の上限値_max_を指定ぜずに検索をかけた場合に例外を発生させること()
+      throws Exception {
+    mockMvc.perform(get("/age-range")
+            .param("min", "20"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void 年齢検索で数値以外のキーワードで検索をかけたら例外を発生させること() throws Exception {
+    mockMvc.perform(get("/age-range")
+            .param("min", "あ")
+            .param("max", "29"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void 年齢検索で負の数で検索をかけたら例外を発生させること() throws Exception {
+    mockMvc.perform(get("/age-range")
+            .param("min", "-1")
+            .param("max", "29"))
+        .andExpect(status().isBadRequest());
   }
 
 }
