@@ -344,4 +344,137 @@ class StudentRepositoryTest {
     return studentCourse;
   }
 
+  @Test
+  void カナ名がアで始まる受講生が正しく取得できること() {
+    // 準備
+    String prefix = "タ";
+
+    // 実行
+    List<Student> result = sut.findStudentsByNamePrefix(prefix);
+
+    // 検証
+    assertThat(result).isNotEmpty();
+    assertThat(result.getFirst().getKanaName()).startsWith("タ");
+  }
+
+  @Test
+  void 一致する受講生がいない場合空リストが返されること() {
+    String prefix = "ン"; // 想定：存在しないカナ名の先頭文字
+
+    List<Student> result = sut.findStudentsByNamePrefix(prefix);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void 年齢が20歳から29歳の受講生を取得できること() {
+    int minAge = 20;
+    int maxAge = 29;
+
+    List<Student> result = sut.findStudentsByAgeRange(minAge, maxAge);
+
+    assertThat(result).isNotEmpty();
+    assertThat(result).allMatch(student ->
+        student.getAge() >= minAge && student.getAge() <= maxAge
+    );
+  }
+
+  @Test
+  void 該当する年齢の受講生がいない場合は空リストが返ること() {
+    int minAge = 100;
+    int maxAge = 110;
+
+    List<Student> result = sut.findStudentsByAgeRange(minAge, maxAge);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void 性別が男性の受講生を取得できること() {
+    List<Student> result = sut.findStudentsByGender("男性");
+
+    assertThat(result).isNotEmpty();
+    assertThat(result).allMatch(student -> "男性".equals(student.getSex()));
+  }
+
+  @Test
+  void 性別が女性の受講生を取得できること() {
+    List<Student> result = sut.findStudentsByGender("女性");
+
+    assertThat(result).isNotEmpty();
+    assertThat(result).allMatch(student -> "女性".equals(student.getSex()));
+  }
+
+  @Test
+  void コース名がJavaコースの受講情報が取得できること() {
+    List<StudentCourse> result = sut.findStudentsByCourse("Javaコース");
+
+    assertThat(result).isNotEmpty();
+    assertThat(result).allMatch(course -> "Javaコース".equals(course.getCourseName()));
+  }
+
+  @Test
+  void 該当するコース名が存在しない場合は空リストが返ること() {
+    List<StudentCourse> result = sut.findStudentsByCourse("Pythonコース");
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void 開始日が2023年4月1日から2025年9月30日の間にあるコースを取得できること() {
+    LocalDateTime from = LocalDateTime.of(2023, 4, 1, 0, 0);
+    LocalDateTime to = LocalDateTime.of(2025, 9, 30, 23, 59);
+
+    List<StudentCourse> result = sut.findCoursesByStartDateRange(from, to);
+
+    assertThat(result).isNotEmpty();
+    assertThat(result).allMatch(course ->
+        !course.getCourseStartAt().isBefore(from) &&
+            !course.getCourseStartAt().isAfter(to)
+    );
+  }
+
+  @Test
+  void 該当する開始日がない場合は空リストが返る() {
+    LocalDateTime from = LocalDateTime.of(2030, 1, 1, 0, 0);
+    LocalDateTime to = LocalDateTime.of(2030, 12, 31, 23, 59);
+
+    List<StudentCourse> result = sut.findCoursesByStartDateRange(from, to);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void 指定した複数のIDに対応する受講生を取得できること() {
+    List<String> ids = List.of("1", "2");
+
+    List<Student> result = sut.findStudentsByIds(ids);
+
+    assertThat(result).hasSize(2);
+    assertThat(result).extracting(Student::getId).containsExactlyInAnyOrder("1", "2");
+  }
+
+  @Test
+  void 存在しない受講生IDを指定してfindStudentsByIdsメソッドを使用した場合は空のリストが返ること() {
+    List<String> ids = List.of("999", "888");
+
+    List<Student> result = sut.findStudentsByIds(ids);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void 指定した申込状況のレコードが取得できること() {
+    List<StudentApplicationStatus> result = sut.findStudentsByStatus("仮申込");
+
+    assertThat(result).isNotEmpty();
+    assertThat(result).allMatch(s -> s.getStatus().equals("仮申込"));
+  }
+
+  @Test
+  void 存在しない申込状況を指定すると空リストが返ること() {
+    List<StudentApplicationStatus> result = sut.findStudentsByStatus("存在しない申込状況");
+
+    assertThat(result).isEmpty();
+  }
 }

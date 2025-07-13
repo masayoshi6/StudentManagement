@@ -70,4 +70,51 @@
     WHERE id = #{id}
   </update>
 
+  <!-- 特定の文字から始まる名前の受講生を検索　-->
+  <select id="findStudentsByNamePrefix" resultType="raisetech.StudentManagement.data.Student">
+    SELECT * FROM students
+    WHERE kana_name LIKE CONCAT(#{prefix}, '%')
+  </select>
+
+  <!-- 指定区間内の年齢を持つ受講生を検索 -->
+  <select id="findStudentsByAgeRange" resultType="raisetech.StudentManagement.data.Student">
+    SELECT * FROM students
+    WHERE age BETWEEN #{minAge} AND #{maxAge}
+  </select>
+
+  <!-- 性別で受講生を検索 -->
+  <select id="findStudentsByGender" resultType="raisetech.StudentManagement.data.Student">
+    SELECT * FROM students
+    WHERE sex = #{sex}
+  </select>
+
+  <!-- 指定したコースを受講している受講生のコース情報を検索 -->
+  <select id="findStudentsByCourse" resultType="raisetech.StudentManagement.data.StudentCourse">
+    SELECT * FROM students_courses
+    WHERE course_name = #{courseName}
+  </select>
+
+  <!-- 受講開始日の期間を設定し、その期間内に受講がスタートする受講生のコース情報を検索 -->
+  <select id="findCoursesByStartDateRange"
+    resultType="raisetech.StudentManagement.data.StudentCourse">
+    SELECT * FROM students_courses
+    WHERE course_start_at BETWEEN #{from} AND #{to}
+  </select>
+
+  <!-- 受講生コース情報のオブジェクトとそれに紐づく受講生オブジェクトを集めたリストを返します。 -->
+  <select id="findStudentsByIds" resultType="raisetech.StudentManagement.data.Student">
+    SELECT * FROM students
+    WHERE id IN
+    <foreach item="id" collection="ids" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </select>
+
+  <!-- 申し込み状況（仮申込、本申込、受講中、受講終了のいずれか）で受講生の検索を行います。 -->
+  <select id="findStudentsByStatus"
+    resultType="raisetech.StudentManagement.data.StudentApplicationStatus">
+    SELECT * FROM students_application_status
+    WHERE status = #{status}
+  </select>
+
 </mapper>
