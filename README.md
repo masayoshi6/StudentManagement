@@ -18,10 +18,6 @@
 
 https://github.com/masayoshi6/StudentManagement
 
-詳細なAPI仕様は、以下のリンクからご確認できます。
-
-[API仕様書.pdf](../../Desktop/API%E4%BB%95%E6%A7%98%E6%9B%B8.pdf)
-
 ## 詳細
 
 ---
